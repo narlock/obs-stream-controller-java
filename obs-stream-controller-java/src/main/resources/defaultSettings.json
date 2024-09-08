@@ -1,0 +1,28 @@
+{
+  "screenSize": [1280, 720],
+  "askAreYouSureOnWindowExit": true,
+  "controllerSide": 0,
+  "connection": {
+    "host": "localhost",
+    "port": 4455,
+    "password": "",
+    "connectOnStartUp": false
+  },
+  "buttonConfig": {
+    "gridSize": [2, 2],
+    "buttons": [
+      {
+        "type": "switchScene",
+        "image": "pathToImage.png",
+        "grid": [0, 0],
+        "scene": "Scene1"
+      },
+      {
+        "type": "switchScene",
+        "image": "pathToImage.png",
+        "grid": [1, 0],
+        "scene": "Scene2"
+      }
+    ]
+  }
+}
