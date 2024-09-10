@@ -21,10 +21,12 @@ public class Settings {
 
   // attributes
   private List<Integer> screenSize;
+  private Boolean lockScreenSize;
   private Boolean askAreYouSureOnWindowExit;
   private Integer controllerSide; // Side to put the controller: 0 for WEST, 1 for EAST
   private Connection connection;
   private ButtonConfig buttonConfig;
+  private List<Tile> tiles;
 
   // mutators and accessors
   public List<Integer> getScreenSize() {
@@ -33,6 +35,14 @@ public class Settings {
 
   public void setScreenSize(List<Integer> screenSize) {
     this.screenSize = screenSize;
+  }
+
+  public Boolean getLockScreenSize() {
+    return lockScreenSize;
+  }
+
+  public void setLockScreenSize(Boolean lockScreenSize) {
+    this.lockScreenSize = lockScreenSize;
   }
 
   public Boolean getAskAreYouSureOnWindowExit() {
@@ -65,6 +75,29 @@ public class Settings {
 
   public void setButtonConfig(ButtonConfig buttonConfig) {
     this.buttonConfig = buttonConfig;
+  }
+
+  public List<Tile> getTiles() {
+    return tiles;
+  }
+
+  public void setTiles(List<Tile> tiles) {
+    this.tiles = tiles;
+  }
+
+  /**
+   * Retrieves a Tile from tiles matching tileName parameter.
+   * @param tileName
+   * @return tile matching tileName
+   */
+  public Tile getTileByName(String tileName) {
+    for(Tile tile : tiles) {
+      if(tile.getName().equals(tileName)) {
+        return tile;
+      }
+    }
+
+    throw new RuntimeException("No tile was found with name " + tileName);
   }
 
   /**

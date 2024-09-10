@@ -2,14 +2,17 @@ package com.narlock.controller;
 
 import com.narlock.Main;
 import io.obswebsocket.community.client.OBSRemoteController;
+import io.obswebsocket.community.client.message.request.scenes.GetCurrentProgramSceneRequest;
 import io.obswebsocket.community.client.message.request.scenes.GetSceneListRequest;
 import io.obswebsocket.community.client.message.request.scenes.SetCurrentProgramSceneRequest;
+import io.obswebsocket.community.client.message.response.scenes.GetCurrentProgramSceneResponse;
 import io.obswebsocket.community.client.message.response.scenes.GetSceneListResponse;
 import io.obswebsocket.community.client.message.response.scenes.SetCurrentProgramSceneResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.util.concurrent.CompletableFuture;
 
 public class OBSController {
   private static final Logger log = LoggerFactory.getLogger(OBSController.class);
@@ -71,7 +74,7 @@ public class OBSController {
 
   public void switchScene(String sceneName) {
       if(!Main.connectedToOBS) {
-          JOptionPane.showMessageDialog(null,
+          JOptionPane.showMessageDialog(Main.window,
                   "Operation failed. Currently not connected to OBS.",
                   "Connection Error",
                   JOptionPane.ERROR_MESSAGE);
@@ -88,4 +91,30 @@ public class OBSController {
           }
         });
   }
+
+    /** Gets the currently active OBS scene */
+    public CompletableFuture<String> getCurrentScene() {
+        CompletableFuture<String> futureSceneName = new CompletableFuture<>();
+
+        if (!Main.connectedToOBS) {
+            JOptionPane.showMessageDialog(Main.window,
+                    "Operation failed. Currently not connected to OBS.",
+                    "Connection Error",
+                    JOptionPane.ERROR_MESSAGE);
+            futureSceneName.completeExceptionally(new RuntimeException("Not connected to OBS"));
+            return futureSceneName;
+        }
+
+        obsRemoteController.sendRequest(
+                GetCurrentProgramSceneRequest.builder().build(),
+                (GetCurrentProgramSceneResponse response) -> {
+                    if (response.isSuccessful()) {
+                        futureSceneName.complete(response.getCurrentProgramSceneName());
+                    } else {
+                        futureSceneName.completeExceptionally(new RuntimeException("Failed to retrieve current active OBS scene"));
+                    }
+                });
+
+        return futureSceneName;
+    }
 }

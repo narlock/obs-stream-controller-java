@@ -23,14 +23,17 @@ public class Window extends JFrame {
   ;
 
   // menu options
-  private JMenuItem settingsMenuItem;
   private JMenuItem exportSettingsMenuItem;
   private JMenuItem importSettingsMenuItem;
+  private JMenuItem toggleLockScreenSizeMenuItem;
   private JMenuItem streamModeMenuItem;
   private JMenuItem editModeMenuItem;
+  private JMenuItem switchInfoPanelSideMenuItem;
   private JMenuItem connectionSettingsMenuItem;
   public JMenuItem connectToOBSMenuItem;
   public JMenuItem disconnectToOBSMenuItem;
+  private JMenuItem manageTilesMenuItem;
+  private JMenuItem newTileMenuItem;
 
   public Window() {
     // initialize obs controller
@@ -53,6 +56,7 @@ public class Window extends JFrame {
     setLayout(new BorderLayout());
     setTitle(WINDOW_TITLE + " • " + VERSION);
     setSize(Main.settings.getScreenSize().get(0), Main.settings.getScreenSize().get(1));
+    setResizable(!Main.settings.getLockScreenSize());
     if (Main.settings.getAskAreYouSureOnWindowExit()) {
       addWindowListener(makeExitWindowListener());
       setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -68,9 +72,6 @@ public class Window extends JFrame {
         int width = getWidth();
         int height = getHeight();
 
-        // Print the new size to the console
-        // System.out.println("Window resized to: " + width + " x " + height);
-
         // Save settings
         Main.settings.setScreenSize(List.of(width, height));
         Main.settings.save();
@@ -83,7 +84,6 @@ public class Window extends JFrame {
 
     // file menu
     JMenu appMenu = new JMenu("App");
-    settingsMenuItem = new JMenuItem("Settings");
     exportSettingsMenuItem = new JMenuItem("Export Settings");
     importSettingsMenuItem = new JMenuItem("Import Settings");
     JMenu resolutionMenu = new JMenu("Set Resolution");
@@ -99,20 +99,23 @@ public class Window extends JFrame {
     resolutionMenu.add(resolution800x600);
     resolutionMenu.add(resolution1024x768);
     resolutionMenu.add(resolution1280x720);
+    toggleLockScreenSizeMenuItem = new JMenuItem(Main.settings.getLockScreenSize() ? "Unlock Screen Size" : "Lock Screen Size");
     configureFileMenuActions();
-    appMenu.add(settingsMenuItem);
     appMenu.add(exportSettingsMenuItem);
     appMenu.add(importSettingsMenuItem);
     appMenu.add(resolutionMenu);
+    appMenu.add(toggleLockScreenSizeMenuItem);
     menuBar.add(appMenu);
 
     // view menu
     JMenu viewMenu = new JMenu("View");
     streamModeMenuItem = new JMenuItem("Stream Mode");
     editModeMenuItem = new JMenuItem("Edit Mode");
+    switchInfoPanelSideMenuItem = new JMenuItem("Switch Menu Item Side");
     configureViewMenuActions();
     viewMenu.add(streamModeMenuItem);
     viewMenu.add(editModeMenuItem);
+    viewMenu.add(switchInfoPanelSideMenuItem);
     menuBar.add(viewMenu);
 
     // obs menu
@@ -126,10 +129,36 @@ public class Window extends JFrame {
     obsMenu.add(disconnectToOBSMenuItem);
     menuBar.add(obsMenu);
 
+    // tile menu
+    JMenu tileMenu = new JMenu("Tile");
+    manageTilesMenuItem = new JMenuItem("Manage Tiles");
+    newTileMenuItem = new JMenuItem("Create Tile");
+    configureTileMenuActions();
+    tileMenu.add(manageTilesMenuItem);
+    tileMenu.add(newTileMenuItem);
+    menuBar.add(tileMenu);
+
     this.add(menuBar, BorderLayout.NORTH);
   }
 
-  public void configureFileMenuActions() {}
+  public void configureFileMenuActions() {
+    toggleLockScreenSizeMenuItem.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        if(!Main.settings.getLockScreenSize()) {
+          Main.settings.setLockScreenSize(true);
+          Main.window.setResizable(false);
+          toggleLockScreenSizeMenuItem.setText("Unlock Screen Size");
+          Main.settings.save();
+        } else {
+          Main.settings.setLockScreenSize(false);
+          Main.window.setResizable(true);
+          toggleLockScreenSizeMenuItem.setText("Lock Screen Size");
+          Main.settings.save();
+        }
+      }
+    });
+  }
 
   public void configureViewMenuActions() {
     streamModeMenuItem.addActionListener(
@@ -147,6 +176,19 @@ public class Window extends JFrame {
             gridPanel.toggleEditMode();
           }
         });
+
+    switchInfoPanelSideMenuItem.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        Main.settings.setControllerSide(Main.settings.getControllerSide() == 0 ? 1 : 0);
+        Main.settings.save();
+
+        remove(infoPanel);
+        initializeInfoPanel();
+        validate();
+        repaint();
+      }
+    });
   }
 
   public void configureOBSMenuActions() {
@@ -161,7 +203,7 @@ public class Window extends JFrame {
             connectToOBSMenuItem.setText("Attempting to connect to OBS...");
             Thread.sleep(1000);
             if(!Main.connectedToOBS) {
-              JOptionPane.showMessageDialog(null,
+              JOptionPane.showMessageDialog(Main.window,
                       "Failed to connect to OBS. Please check configurations.",
                       "Connection Error",
                       JOptionPane.ERROR_MESSAGE);
@@ -183,6 +225,10 @@ public class Window extends JFrame {
       connectToOBSMenuItem.setEnabled(true);
       disconnectToOBSMenuItem.setEnabled(false);
     }
+  }
+
+  public void configureTileMenuActions() {
+
   }
 
   public void initializeInfoPanel() {

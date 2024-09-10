@@ -1,6 +1,7 @@
 package com.narlock.gui.panel;
 
 import com.narlock.Main;
+import com.narlock.gui.Window;
 
 import javax.swing.*;
 
@@ -9,6 +10,7 @@ public class InfoPanel extends JPanel {
 
   public String connectedString;
   public JLabel connectedToOBSLabel;
+  public JLabel currentOBSScene;
 
   public InfoPanel() {
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -18,7 +20,11 @@ public class InfoPanel extends JPanel {
     connectedToOBSLabel =
         new JLabel(
             "<html><span style='color:black;'>OBS: </span><span style='color:red;'>Not connected</span></html>");
+    currentOBSScene = new JLabel();
+
+    // Add labels to panel
     add(connectedToOBSLabel);
+    add(currentOBSScene);
   }
 
   public void setConnectedToOBS(boolean connected) {

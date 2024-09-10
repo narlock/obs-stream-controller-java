@@ -3,10 +3,15 @@ package com.narlock.gui.panel;
 import com.narlock.Main;
 import com.narlock.gui.Window;
 import com.narlock.model.Button;
+import com.narlock.model.Tile;
+import com.narlock.model.TileType;
+import com.narlock.util.ImageUtils;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import javax.swing.*;
 import javax.swing.border.Border;
 
@@ -54,14 +59,37 @@ public class GridPanel extends JPanel {
   }
 
   public JButton getActionButton(Button configButton) {
-    if(configButton.getType().equals("switchScene")) {
-      JButton actionButton = new JButton("Switch Scene to " + configButton.getScene());
-      actionButton.addActionListener(e -> Window.obsController.switchScene(configButton.getScene()));
+    Tile tile = Main.settings.getTileByName(configButton.getTileName());
+    JButton actionButton = new JButton();
+
+    // Create the initial image and set the icon
+    Image originalImage = ImageUtils.readImage(tile.getImagePath());
+    ImageIcon icon = new ImageIcon(originalImage);
+    actionButton.setIcon(icon);
+
+    // Add a ComponentListener to resize the icon when the button size changes
+    actionButton.addComponentListener(new ComponentAdapter() {
+      @Override
+      public void componentResized(ComponentEvent e) {
+        // Get the new button dimensions
+        int width = actionButton.getWidth();
+        int height = actionButton.getHeight();
+
+        // Scale the original image to fit the button size
+        Image scaledImage = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+
+        // Set the new icon with the scaled image
+        actionButton.setIcon(new ImageIcon(scaledImage));
+      }
+    });
+
+    if(tile.getType().equals(TileType.SWITCH_SCENE)) {
+      actionButton.addActionListener(e -> Window.obsController.switchScene(tile.getScene()));
       actionButton.setBorder(BORDER);
       return actionButton;
     }
 
-    throw new RuntimeException("Invalid configButton type received: " + configButton.getType());
+    throw new RuntimeException("Invalid configButton tile type received: " + configButton.getTileName());
   }
 
   public void toggleEditMode() {

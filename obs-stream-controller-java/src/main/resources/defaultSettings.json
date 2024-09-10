@@ -1,5 +1,6 @@
 {
   "screenSize": [1280, 720],
+  "lockScreenSize": false,
   "askAreYouSureOnWindowExit": true,
   "controllerSide": 0,
   "connection": {
@@ -12,17 +13,27 @@
     "gridSize": [2, 2],
     "buttons": [
       {
-        "type": "switchScene",
-        "image": "pathToImage.png",
-        "grid": [0, 0],
-        "scene": "Scene1"
+        "tileName": "Switch to Scene1",
+        "grid": [0, 0]
       },
       {
-        "type": "switchScene",
-        "image": "pathToImage.png",
-        "grid": [1, 0],
-        "scene": "Scene2"
+        "tileName": "Switch to Scene2",
+        "grid": [1, 0]
       }
     ]
-  }
+  },
+  "tiles": [
+    {
+      "name": "Switch to Scene1",
+      "type": "SWITCH_SCENE",
+      "imagePath": "pathToImage.png",
+      "scene": "Scene1"
+    },
+    {
+      "name": "Switch to Scene2",
+      "type": "SWITCH_SCENE",
+      "imagePath": "pathToImage.png",
+      "scene": "Scene2"
+    }
+  ]
 }
