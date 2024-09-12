@@ -1,12 +1,9 @@
 package com.narlock.gui.panel;
 
 import com.narlock.Main;
-import com.narlock.gui.Window;
-
 import javax.swing.*;
 
 public class InfoPanel extends JPanel {
-
 
   public String connectedString;
   public JLabel connectedToOBSLabel;
@@ -36,7 +33,7 @@ public class InfoPanel extends JPanel {
     connectedToOBSLabel.setText(
         "<html><span style='color:black;'>OBS: </span>" + connectedString + "</html>");
 
-    if(connected) {
+    if (connected) {
       // If we are connected, disable connect command
       Main.window.connectToOBSMenuItem.setEnabled(false);
       Main.window.disconnectToOBSMenuItem.setEnabled(true);

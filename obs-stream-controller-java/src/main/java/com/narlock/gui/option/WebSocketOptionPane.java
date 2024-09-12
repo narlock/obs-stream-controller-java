@@ -33,7 +33,7 @@ public class WebSocketOptionPane {
 
   public static void configureExistingWebSocketSettings() {
     // Disconnect if connected to OBS
-    if(Main.connectedToOBS) {
+    if (Main.connectedToOBS) {
       Window.obsController.disconnect();
     }
 
@@ -90,7 +90,7 @@ public class WebSocketOptionPane {
 
     JPanel connectOnStartUpPanel = new JPanel();
     JCheckBox connectOnStartUpCheckBox = new JCheckBox("Connect to OBS on start");
-    if(settings.getConnection().getConnectOnStartUp()) {
+    if (settings.getConnection().getConnectOnStartUp()) {
       connectOnStartUpCheckBox.setSelected(true);
     }
     connectOnStartUpPanel.add(connectOnStartUpCheckBox);

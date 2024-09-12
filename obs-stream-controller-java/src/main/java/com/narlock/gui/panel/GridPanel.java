@@ -6,7 +6,6 @@ import com.narlock.model.Button;
 import com.narlock.model.Tile;
 import com.narlock.model.TileType;
 import com.narlock.util.ImageUtils;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,26 +30,29 @@ public class GridPanel extends JPanel {
     System.out.println("gridRows: " + gridRows + ", gridCols: " + gridCols);
     setLayout(new GridLayout(gridRows, gridCols));
 
-    for(int x = 0; x < gridRows; x++) {
-      for(int y = 0; y < gridCols; y++) {
+    for (int x = 0; x < gridRows; x++) {
+      for (int y = 0; y < gridCols; y++) {
         boolean buttonAdded = false;
 
         // check to see if a button in our list is in the current grid position
-        for(Button configButton : Main.settings.getButtonConfig().getButtons()) {
-          if(configButton.getGrid().get(0) == x && configButton.getGrid().get(1) == y) {
-            add(getActionButton(configButton));
-            buttonAdded = true;
-            break;
+        for (Button configButton : Main.settings.getButtonConfig().getButtons()) {
+          if (configButton.getGrid().get(0) == x && configButton.getGrid().get(1) == y) {
+            try {
+              add(getActionButton(configButton));
+              buttonAdded = true;
+              break;
+            } catch (RuntimeException e) {
+              System.out.println("Warning: button config removed since the tile does not exist");
+            }
           }
         }
 
         // if not,found, add a blank panel to the grid
-        if(!buttonAdded) {
+        if (!buttonAdded) {
           JPanel spacePanel = new JPanel();
           spacePanel.setBorder(BORDER);
           add(spacePanel);
         }
-
       }
     }
 
@@ -59,7 +61,15 @@ public class GridPanel extends JPanel {
   }
 
   public JButton getActionButton(Button configButton) {
-    Tile tile = Main.settings.getTileByName(configButton.getTileName());
+    Tile tile;
+    try {
+      tile = Main.settings.getTileByName(configButton.getTileName());
+    } catch (RuntimeException e) {
+      Main.settings.getButtonConfig().getButtons().remove(configButton);
+      Main.settings.save();
+      throw new RuntimeException(e);
+    }
+
     JButton actionButton = new JButton();
 
     // Create the initial image and set the icon
@@ -68,28 +78,30 @@ public class GridPanel extends JPanel {
     actionButton.setIcon(icon);
 
     // Add a ComponentListener to resize the icon when the button size changes
-    actionButton.addComponentListener(new ComponentAdapter() {
-      @Override
-      public void componentResized(ComponentEvent e) {
-        // Get the new button dimensions
-        int width = actionButton.getWidth();
-        int height = actionButton.getHeight();
+    actionButton.addComponentListener(
+        new ComponentAdapter() {
+          @Override
+          public void componentResized(ComponentEvent e) {
+            // Get the new button dimensions
+            int width = actionButton.getWidth();
+            int height = actionButton.getHeight();
 
-        // Scale the original image to fit the button size
-        Image scaledImage = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+            // Scale the original image to fit the button size
+            Image scaledImage = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
 
-        // Set the new icon with the scaled image
-        actionButton.setIcon(new ImageIcon(scaledImage));
-      }
-    });
+            // Set the new icon with the scaled image
+            actionButton.setIcon(new ImageIcon(scaledImage));
+          }
+        });
 
-    if(tile.getType().equals(TileType.SWITCH_SCENE)) {
+    if (tile.getType().equals(TileType.SWITCH_SCENE)) {
       actionButton.addActionListener(e -> Window.obsController.switchScene(tile.getScene()));
       actionButton.setBorder(BORDER);
       return actionButton;
     }
 
-    throw new RuntimeException("Invalid configButton tile type received: " + configButton.getTileName());
+    throw new RuntimeException(
+        "Invalid configButton tile type received: " + configButton.getTileName());
   }
 
   public void toggleEditMode() {

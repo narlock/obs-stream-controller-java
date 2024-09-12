@@ -5,6 +5,7 @@ import static com.narlock.util.Constants.WINDOW_TITLE;
 
 import com.narlock.Main;
 import com.narlock.controller.OBSController;
+import com.narlock.gui.option.ManageTilesOptionPane;
 import com.narlock.gui.option.WebSocketOptionPane;
 import com.narlock.gui.panel.GridPanel;
 import com.narlock.gui.panel.InfoPanel;
@@ -65,18 +66,19 @@ public class Window extends JFrame {
     }
 
     // Add a ComponentListener to listen for resize events
-    addComponentListener(new ComponentAdapter() {
-      @Override
-      public void componentResized(ComponentEvent e) {
-        // Get the size of the window
-        int width = getWidth();
-        int height = getHeight();
+    addComponentListener(
+        new ComponentAdapter() {
+          @Override
+          public void componentResized(ComponentEvent e) {
+            // Get the size of the window
+            int width = getWidth();
+            int height = getHeight();
 
-        // Save settings
-        Main.settings.setScreenSize(List.of(width, height));
-        Main.settings.save();
-      }
-    });
+            // Save settings
+            Main.settings.setScreenSize(List.of(width, height));
+            Main.settings.save();
+          }
+        });
   }
 
   public void initializeWindowMenu() {
@@ -99,7 +101,9 @@ public class Window extends JFrame {
     resolutionMenu.add(resolution800x600);
     resolutionMenu.add(resolution1024x768);
     resolutionMenu.add(resolution1280x720);
-    toggleLockScreenSizeMenuItem = new JMenuItem(Main.settings.getLockScreenSize() ? "Unlock Screen Size" : "Lock Screen Size");
+    toggleLockScreenSizeMenuItem =
+        new JMenuItem(
+            Main.settings.getLockScreenSize() ? "Unlock Screen Size" : "Lock Screen Size");
     configureFileMenuActions();
     appMenu.add(exportSettingsMenuItem);
     appMenu.add(importSettingsMenuItem);
@@ -142,22 +146,23 @@ public class Window extends JFrame {
   }
 
   public void configureFileMenuActions() {
-    toggleLockScreenSizeMenuItem.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        if(!Main.settings.getLockScreenSize()) {
-          Main.settings.setLockScreenSize(true);
-          Main.window.setResizable(false);
-          toggleLockScreenSizeMenuItem.setText("Unlock Screen Size");
-          Main.settings.save();
-        } else {
-          Main.settings.setLockScreenSize(false);
-          Main.window.setResizable(true);
-          toggleLockScreenSizeMenuItem.setText("Lock Screen Size");
-          Main.settings.save();
-        }
-      }
-    });
+    toggleLockScreenSizeMenuItem.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            if (!Main.settings.getLockScreenSize()) {
+              Main.settings.setLockScreenSize(true);
+              Main.window.setResizable(false);
+              toggleLockScreenSizeMenuItem.setText("Unlock Screen Size");
+              Main.settings.save();
+            } else {
+              Main.settings.setLockScreenSize(false);
+              Main.window.setResizable(true);
+              toggleLockScreenSizeMenuItem.setText("Lock Screen Size");
+              Main.settings.save();
+            }
+          }
+        });
   }
 
   public void configureViewMenuActions() {
@@ -177,48 +182,53 @@ public class Window extends JFrame {
           }
         });
 
-    switchInfoPanelSideMenuItem.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        Main.settings.setControllerSide(Main.settings.getControllerSide() == 0 ? 1 : 0);
-        Main.settings.save();
+    switchInfoPanelSideMenuItem.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Main.settings.setControllerSide(Main.settings.getControllerSide() == 0 ? 1 : 0);
+            Main.settings.save();
 
-        remove(infoPanel);
-        initializeInfoPanel();
-        validate();
-        repaint();
-      }
-    });
+            remove(infoPanel);
+            initializeInfoPanel();
+            validate();
+            repaint();
+          }
+        });
   }
 
   public void configureOBSMenuActions() {
-    connectionSettingsMenuItem.addActionListener(e -> {
-      WebSocketOptionPane.configureExistingWebSocketSettings();
-      obsController.resetObsRemoteController();
-    });
-    connectToOBSMenuItem.addActionListener(e -> {
-      obsController.connect();
-        try {
-          connectToOBSMenuItem.setEnabled(false);
+    connectionSettingsMenuItem.addActionListener(
+        e -> {
+          WebSocketOptionPane.configureExistingWebSocketSettings();
+          obsController.resetObsRemoteController();
+        });
+    connectToOBSMenuItem.addActionListener(
+        e -> {
+          obsController.connect();
+          try {
+            connectToOBSMenuItem.setEnabled(false);
             connectToOBSMenuItem.setText("Attempting to connect to OBS...");
             Thread.sleep(1000);
-            if(!Main.connectedToOBS) {
-              JOptionPane.showMessageDialog(Main.window,
-                      "Failed to connect to OBS. Please check configurations.",
-                      "Connection Error",
-                      JOptionPane.ERROR_MESSAGE);
+            if (!Main.connectedToOBS) {
+              JOptionPane.showMessageDialog(
+                  Main.window,
+                  "Failed to connect to OBS. Please check configurations.",
+                  "Connection Error",
+                  JOptionPane.ERROR_MESSAGE);
               connectToOBSMenuItem.setEnabled(true);
             }
             connectToOBSMenuItem.setText("Connect to OBS");
-        } catch (InterruptedException ex) {
+          } catch (InterruptedException ex) {
             ex.printStackTrace();
-        }
-    });
-    disconnectToOBSMenuItem.addActionListener(e -> {
-      obsController.disconnect();
-    });
+          }
+        });
+    disconnectToOBSMenuItem.addActionListener(
+        e -> {
+          obsController.disconnect();
+        });
 
-    if(Main.connectedToOBS) {
+    if (Main.connectedToOBS) {
       connectToOBSMenuItem.setEnabled(false);
       disconnectToOBSMenuItem.setEnabled(true);
     } else {
@@ -228,7 +238,13 @@ public class Window extends JFrame {
   }
 
   public void configureTileMenuActions() {
-
+    manageTilesMenuItem.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            ManageTilesOptionPane.show();
+          }
+        });
   }
 
   public void initializeInfoPanel() {

@@ -2,10 +2,9 @@ package com.narlock;
 
 import com.narlock.gui.Window;
 import com.narlock.model.Settings;
+import javax.swing.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.swing.*;
 
 public class Main {
   private static final Logger log = LoggerFactory.getLogger(Main.class);
@@ -28,11 +27,12 @@ public class Main {
       Thread.sleep(1000);
 
       // Show error message if not connected
-      if(!Main.connectedToOBS) {
-        JOptionPane.showMessageDialog(null,
-                "Failed to connect to OBS. Please check configurations and that OBS is open.",
-                "Connection Error",
-                JOptionPane.ERROR_MESSAGE);
+      if (!Main.connectedToOBS) {
+        JOptionPane.showMessageDialog(
+            null,
+            "Failed to connect to OBS. Please check configurations and that OBS is open.",
+            "Connection Error",
+            JOptionPane.ERROR_MESSAGE);
       }
     }
   }

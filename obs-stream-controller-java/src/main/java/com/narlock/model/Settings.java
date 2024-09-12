@@ -87,12 +87,13 @@ public class Settings {
 
   /**
    * Retrieves a Tile from tiles matching tileName parameter.
+   *
    * @param tileName
    * @return tile matching tileName
    */
   public Tile getTileByName(String tileName) {
-    for(Tile tile : tiles) {
-      if(tile.getName().equals(tileName)) {
+    for (Tile tile : tiles) {
+      if (tile.getName().equals(tileName)) {
         return tile;
       }
     }

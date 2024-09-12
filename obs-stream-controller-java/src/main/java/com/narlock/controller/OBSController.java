@@ -8,11 +8,10 @@ import io.obswebsocket.community.client.message.request.scenes.SetCurrentProgram
 import io.obswebsocket.community.client.message.response.scenes.GetCurrentProgramSceneResponse;
 import io.obswebsocket.community.client.message.response.scenes.GetSceneListResponse;
 import io.obswebsocket.community.client.message.response.scenes.SetCurrentProgramSceneResponse;
+import java.util.concurrent.CompletableFuture;
+import javax.swing.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.swing.*;
-import java.util.concurrent.CompletableFuture;
 
 public class OBSController {
   private static final Logger log = LoggerFactory.getLogger(OBSController.class);
@@ -33,16 +32,17 @@ public class OBSController {
   }
 
   public void resetObsRemoteController() {
-      obsRemoteController = OBSRemoteController.builder()
-              .host(Main.settings.getConnection().getHost())
-              .port(Main.settings.getConnection().getPort())
-              .password(Main.settings.getConnection().getPassword())
-              .lifecycle()
-              .onConnect(session -> Main.window.infoPanel.setConnectedToOBS(true))
-              .onDisconnect(() -> Main.window.infoPanel.setConnectedToOBS(false))
-              .onReady(() -> System.out.println("OBS WebSocket is ready to accept requests"))
-              .and()
-              .build();
+    obsRemoteController =
+        OBSRemoteController.builder()
+            .host(Main.settings.getConnection().getHost())
+            .port(Main.settings.getConnection().getPort())
+            .password(Main.settings.getConnection().getPassword())
+            .lifecycle()
+            .onConnect(session -> Main.window.infoPanel.setConnectedToOBS(true))
+            .onDisconnect(() -> Main.window.infoPanel.setConnectedToOBS(false))
+            .onReady(() -> System.out.println("OBS WebSocket is ready to accept requests"))
+            .and()
+            .build();
   }
 
   /** Connects to the OBS web socket */
@@ -73,13 +73,14 @@ public class OBSController {
   }
 
   public void switchScene(String sceneName) {
-      if(!Main.connectedToOBS) {
-          JOptionPane.showMessageDialog(Main.window,
-                  "Operation failed. Currently not connected to OBS.",
-                  "Connection Error",
-                  JOptionPane.ERROR_MESSAGE);
-          return;
-      }
+    if (!Main.connectedToOBS) {
+      JOptionPane.showMessageDialog(
+          Main.window,
+          "Operation failed. Currently not connected to OBS.",
+          "Connection Error",
+          JOptionPane.ERROR_MESSAGE);
+      return;
+    }
 
     obsRemoteController.sendRequest(
         SetCurrentProgramSceneRequest.builder().sceneName(sceneName).build(),
@@ -92,29 +93,31 @@ public class OBSController {
         });
   }
 
-    /** Gets the currently active OBS scene */
-    public CompletableFuture<String> getCurrentScene() {
-        CompletableFuture<String> futureSceneName = new CompletableFuture<>();
+  /** Gets the currently active OBS scene */
+  public CompletableFuture<String> getCurrentScene() {
+    CompletableFuture<String> futureSceneName = new CompletableFuture<>();
 
-        if (!Main.connectedToOBS) {
-            JOptionPane.showMessageDialog(Main.window,
-                    "Operation failed. Currently not connected to OBS.",
-                    "Connection Error",
-                    JOptionPane.ERROR_MESSAGE);
-            futureSceneName.completeExceptionally(new RuntimeException("Not connected to OBS"));
-            return futureSceneName;
-        }
-
-        obsRemoteController.sendRequest(
-                GetCurrentProgramSceneRequest.builder().build(),
-                (GetCurrentProgramSceneResponse response) -> {
-                    if (response.isSuccessful()) {
-                        futureSceneName.complete(response.getCurrentProgramSceneName());
-                    } else {
-                        futureSceneName.completeExceptionally(new RuntimeException("Failed to retrieve current active OBS scene"));
-                    }
-                });
-
-        return futureSceneName;
+    if (!Main.connectedToOBS) {
+      JOptionPane.showMessageDialog(
+          Main.window,
+          "Operation failed. Currently not connected to OBS.",
+          "Connection Error",
+          JOptionPane.ERROR_MESSAGE);
+      futureSceneName.completeExceptionally(new RuntimeException("Not connected to OBS"));
+      return futureSceneName;
     }
+
+    obsRemoteController.sendRequest(
+        GetCurrentProgramSceneRequest.builder().build(),
+        (GetCurrentProgramSceneResponse response) -> {
+          if (response.isSuccessful()) {
+            futureSceneName.complete(response.getCurrentProgramSceneName());
+          } else {
+            futureSceneName.completeExceptionally(
+                new RuntimeException("Failed to retrieve current active OBS scene"));
+          }
+        });
+
+    return futureSceneName;
+  }
 }
