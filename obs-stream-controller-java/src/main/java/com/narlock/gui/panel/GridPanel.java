@@ -2,6 +2,7 @@ package com.narlock.gui.panel;
 
 import com.narlock.Main;
 import com.narlock.gui.Window;
+import com.narlock.gui.option.SetTileOptionPane;
 import com.narlock.model.Button;
 import com.narlock.model.Tile;
 import com.narlock.model.TileType;
@@ -27,7 +28,6 @@ public class GridPanel extends JPanel {
     this.removeAll();
     int gridRows = Main.settings.getButtonConfig().getGridSize().get(0);
     int gridCols = Main.settings.getButtonConfig().getGridSize().get(1);
-    System.out.println("gridRows: " + gridRows + ", gridCols: " + gridCols);
     setLayout(new GridLayout(gridRows, gridCols));
 
     for (int x = 0; x < gridRows; x++) {
@@ -106,29 +106,51 @@ public class GridPanel extends JPanel {
 
   public void toggleEditMode() {
     this.removeAll();
+    int gridRows = Main.settings.getButtonConfig().getGridSize().get(0);
+    int gridCols = Main.settings.getButtonConfig().getGridSize().get(1);
+    setLayout(new GridLayout(gridRows, gridCols));
 
-    JButton button = new JButton("test");
-    button.setBorder(BORDER);
-    button.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            System.out.println("test");
+    for (int x = 0; x < gridRows; x++) {
+      for (int y = 0; y < gridCols; y++) {
+        boolean buttonAdded = false;
+
+        // check to see if a button in our list is in the current grid position
+        for (Button configButton : Main.settings.getButtonConfig().getButtons()) {
+          if (configButton.getGrid().get(0) == x && configButton.getGrid().get(1) == y) {
+            try {
+              add(getActionEditButton(configButton.getTileName(), x, y));
+              buttonAdded = true;
+              break;
+            } catch (RuntimeException e) {
+              System.out.println("Warning: button config removed since the tile does not exist");
+            }
           }
-        });
-    JButton button1 = new JButton("test");
-    button1.setBorder(BORDER);
-    JButton button2 = new JButton("test");
-    button2.setBorder(BORDER);
-    JButton button3 = new JButton("test");
-    button3.setBorder(BORDER);
+        }
 
-    this.add(button);
-    this.add(button1);
-    this.add(button2);
-    this.add(button3);
+        // if not,found, add a blank panel to the grid
+        if (!buttonAdded) {
+          add(getActionEditButton("No Button", x, y));
+        }
+      }
+    }
 
     this.validate();
     this.repaint();
+  }
+
+  public JButton getActionEditButton(String name, int x, int y) {
+    JButton actionButton = new JButton(name);
+    actionButton.setBorder(BORDER);
+
+    actionButton.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            SetTileOptionPane.show(x, y);
+            toggleEditMode();
+          }
+        });
+
+    return actionButton;
   }
 }

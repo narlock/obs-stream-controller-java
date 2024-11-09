@@ -8,6 +8,8 @@ import io.obswebsocket.community.client.message.request.scenes.SetCurrentProgram
 import io.obswebsocket.community.client.message.response.scenes.GetCurrentProgramSceneResponse;
 import io.obswebsocket.community.client.message.response.scenes.GetSceneListResponse;
 import io.obswebsocket.community.client.message.response.scenes.SetCurrentProgramSceneResponse;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.swing.*;
 import org.slf4j.Logger;
@@ -55,21 +57,35 @@ public class OBSController {
     obsRemoteController.disconnect();
   }
 
-  public void getScenes() {
+  //  public void getScenes() {
+  //    obsRemoteController.sendRequest(
+  //        GetSceneListRequest.builder().build(),
+  //        (GetSceneListResponse response) -> {
+  //          if (response.isSuccessful()) {
+  //            response
+  //                .getScenes()
+  //                .forEach(
+  //                    scene -> {
+  //                      System.out.println("Scene: " + scene.getSceneName());
+  //                    });
+  //          } else {
+  //            System.err.println("Failed to get scene list");
+  //          }
+  //        });
+  //  }
+
+  public List<String> getScenes() {
+    List<String> scenes = new ArrayList<>();
     obsRemoteController.sendRequest(
         GetSceneListRequest.builder().build(),
         (GetSceneListResponse response) -> {
           if (response.isSuccessful()) {
-            response
-                .getScenes()
-                .forEach(
-                    scene -> {
-                      System.out.println("Scene: " + scene.getSceneName());
-                    });
+            response.getScenes().forEach(scene -> scenes.add(scene.getSceneName()));
           } else {
             System.err.println("Failed to get scene list");
           }
         });
+    return scenes;
   }
 
   public void switchScene(String sceneName) {

@@ -5,6 +5,7 @@ import static com.narlock.util.Constants.WINDOW_TITLE;
 
 import com.narlock.Main;
 import com.narlock.controller.OBSController;
+import com.narlock.gui.option.CreateTileOptionPane;
 import com.narlock.gui.option.ManageTilesOptionPane;
 import com.narlock.gui.option.WebSocketOptionPane;
 import com.narlock.gui.panel.GridPanel;
@@ -87,7 +88,11 @@ public class Window extends JFrame {
     // file menu
     JMenu appMenu = new JMenu("App");
     exportSettingsMenuItem = new JMenuItem("Export Settings");
+    // TODO
+    exportSettingsMenuItem.setEnabled(false);
     importSettingsMenuItem = new JMenuItem("Import Settings");
+    // TODO
+    importSettingsMenuItem.setEnabled(false);
     JMenu resolutionMenu = new JMenu("Set Resolution");
     JMenuItem resolution640x480 = new JMenuItem("640 x 480");
     resolution640x480.addActionListener(e -> setSize(640, 480));
@@ -243,6 +248,14 @@ public class Window extends JFrame {
           @Override
           public void actionPerformed(ActionEvent e) {
             ManageTilesOptionPane.show();
+            gridPanel.toggleStreamMode();
+          }
+        });
+    newTileMenuItem.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            CreateTileOptionPane.show();
           }
         });
   }

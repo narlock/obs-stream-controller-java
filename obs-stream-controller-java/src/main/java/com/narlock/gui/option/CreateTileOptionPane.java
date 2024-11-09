@@ -1,3 +1,102 @@
 package com.narlock.gui.option;
 
-public class CreateTileOptionPane {}
+import com.narlock.Main;
+import com.narlock.gui.Window;
+import com.narlock.model.Tile;
+import com.narlock.model.TileType;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+import javax.swing.*;
+
+public class CreateTileOptionPane {
+  public static final String SWITCH_SCENE = "Switch Scene";
+
+  public static JPanel rootPanel = new JPanel();
+  public static JLabel actionLabel = new JLabel("Action");
+  public static JComboBox<String> typeComboBox;
+  public static JPanel optionPanel = new JPanel();
+
+  public static void show() {
+    // Reset rootPane on show
+    rootPanel.setPreferredSize(new Dimension(400, 300));
+    rootPanel.setLayout(new GridLayout(2, 1));
+    rootPanel.removeAll();
+
+    // Initialize rootPane components
+    JPanel topPanel = new JPanel();
+    typeComboBox = new JComboBox<>();
+    typeComboBox.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            try {
+              addComponentsByTileType();
+            } catch (InterruptedException ex) {
+              throw new RuntimeException(ex);
+            }
+          }
+        });
+
+    // add tile options
+    typeComboBox.addItem("Select Action");
+    typeComboBox.addItem(SWITCH_SCENE);
+
+    // add top panel components
+    topPanel.add(actionLabel);
+    topPanel.add(typeComboBox);
+
+    // create option panel
+    JPanel centerPanel = new JPanel();
+    centerPanel.add(optionPanel);
+
+    // show the scene
+    rootPanel.add(topPanel);
+    rootPanel.add(centerPanel);
+
+    int result =
+        JOptionPane.showConfirmDialog(null, rootPanel, "Create Tile", JOptionPane.OK_CANCEL_OPTION);
+
+    if (result == JOptionPane.OK_OPTION) {
+      // Handle OK option
+
+    }
+  }
+
+  public static void addComponentsByTileType() throws InterruptedException {
+    Object selectedItem = typeComboBox.getSelectedItem();
+
+    if (selectedItem instanceof String && selectedItem.equals(SWITCH_SCENE)) {
+      // open dialog for switching scene
+      System.out.println("Switch Scene");
+
+      JLabel label = new JLabel("Switch to scene");
+      JButton saveButton = new JButton("Save to disk");
+      List<String> scenes = Window.obsController.getScenes();
+      Thread.sleep(1000);
+
+      JComboBox<String> sceneComboBox = new JComboBox<>(scenes.toArray(new String[0]));
+      scenes.sort(String::compareTo);
+      saveButton.addActionListener(
+          e -> {
+            Tile tile = new Tile();
+            tile.setName("Switch to " + sceneComboBox.getSelectedItem());
+            tile.setType(TileType.SWITCH_SCENE);
+            tile.setScene((String) sceneComboBox.getSelectedItem());
+            Main.settings.getTiles().add(tile);
+            Main.settings.save();
+          });
+      optionPanel.add(label);
+      optionPanel.add(sceneComboBox);
+      optionPanel.add(saveButton);
+
+      rootPanel.repaint();
+      rootPanel.revalidate();
+
+    } else {
+      System.out.println("Other type received " + selectedItem);
+      optionPanel.removeAll();
+    }
+  }
+}
