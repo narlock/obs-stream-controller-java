@@ -28,7 +28,7 @@ public class SetTileOptionPane {
 
     int result =
         JOptionPane.showConfirmDialog(
-            null, rootPanel, "Manage Tiles", JOptionPane.OK_CANCEL_OPTION);
+            null, rootPanel, "Set Tile at " + x + ", " + y, JOptionPane.OK_CANCEL_OPTION);
     if (result == JOptionPane.OK_OPTION) {
       Tile tile = (Tile) tileComboBox.getSelectedItem();
 
